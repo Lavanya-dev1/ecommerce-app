@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
-function Navbar({ onHomeClick }) {
+function Navbar() {
   const { cartItems } = useCart();
   const totalCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 

@@ -56,7 +56,7 @@ export function CartProvider({ children }) {
     );
   };
 
-  // clearCart: simple helper to empty the cart (set cartItems to an empty array)
+  // (set cartItems to an empty array)
   const clearCart = () => setCartItems([]);
 
   // Return the provider component. The `value` prop exposes the state and actions
@@ -75,4 +75,3 @@ export function CartProvider({ children }) {
 export function useCart() {
   return useContext(CartContext);
 }
-``
