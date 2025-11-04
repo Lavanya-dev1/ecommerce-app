@@ -67,8 +67,9 @@ useEffect(() => {
   if (filter) params.category = filter;
   if (search) params.search = search;
 
-  setSearchParams(params); // updates the URL like ?category=jewelery&search=ring
-}, [filter, search]);
+  if (newCategory !== filter) setFilter(newCategory);
+  if (newSearch !== search) setSearch(newSearch);
+}, [searchParams]);
 
   // Render UI
   return (
