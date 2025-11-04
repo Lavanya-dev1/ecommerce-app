@@ -8,10 +8,10 @@ function App()
 {
   return (
      <CartProvider>
-    <Router>
+    <Router basename="/ecommerce-app">
          <Navbar />
     <Routes>
-    <Route path="/" element= {<Home/>} />
+     <Route index element={<Home />} />
     <Route path="/product/:id" element={<ProductDetail />}/>
   <Route path="/cart" element={<Cart />} /> 
    </Routes>
