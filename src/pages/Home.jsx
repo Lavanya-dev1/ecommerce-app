@@ -1,6 +1,7 @@
 // Import necessary hooks and libraries
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSearchParams } from "react-router-dom";
 
 // Import ProductCard component to display each product
 import ProductCard from "../components/ProductCard";
@@ -14,12 +15,13 @@ function Home() {
 
   // Store all available categories (like electronics, jewelry, etc.)
   const [categories, setCategories] = useState([]);
+  
+ // Read parameters from the URL
+const [searchParams, setSearchParams] = useSearchParams();
 
-  // Store the selected category for filtering
-  const [filter, setFilter] = useState("");
-
-  // Store the user's search text
-  const [search, setSearch] = useState("");
+// Initial values come from the URL (if present)
+const [filter, setFilter] = useState(searchParams.get("category") || "");
+const [search, setSearch] = useState(searchParams.get("search") || "");
 
   // Fetch all products when the component first loads
   useEffect(() => {
@@ -59,6 +61,15 @@ function Home() {
     setFilteredProducts(filtered); // Update the displayed list
   }, [products, search, filter]);
 
+    // Keep URL parameters in sync with filter/search state
+useEffect(() => {
+  const params = {};
+  if (filter) params.category = filter;
+  if (search) params.search = search;
+
+  setSearchParams(params); // updates the URL like ?category=jewelery&search=ring
+}, [filter, search]);
+
   // Render UI
   return (
     <div className="p-6">
@@ -72,14 +83,16 @@ function Home() {
           type="text"
           placeholder="Search products..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)} // update search text
+          onChange={(e) => {setSearch(e.target.value); // update search text
+          setFilter("");}}
           className="border p-2 rounded w-full md:w-1/3"
         />
 
         {/* Category dropdown */}
         <select
           value={filter}
-          onChange={(e) => setFilter(e.target.value)} // update selected category
+          onChange={(e) => { setFilter(e.target.value); // update selected category
+            setSearch("");}} 
           className="border p-2 rounded w-full md:w-1/4"
         >
           <option value="">All Categories</option>
@@ -94,10 +107,20 @@ function Home() {
 
       {/* Display filtered products */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+  {filteredProducts.length > 0 ? (
+    filteredProducts.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  ) : search ? (
+    <p className="col-span-full text-center text-gray-500 text-lg">
+      🔍 No products found for "<span className="font-semibold">{search}</span>"
+    </p>
+  ) : (
+    <p className="col-span-full text-center text-gray-500 text-lg">
+      ❌ No products found in this category.
+    </p>
+  )}
+</div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 // Define the Navbar component
-function Navbar() {
+function Navbar({onHomeClick}) {
   // Destructure cartItems from the useCart hook (comes from CartContext)
   const { cartItems } = useCart();
 
@@ -24,7 +24,7 @@ function Navbar() {
     <nav className="flex justify-between items-center bg-blue-600 text-white p-4">
 
       {/* Brand or logo area — clicking it goes to home page */}
-      <Link to="/" className="text-lg font-bold">
+      <Link to="/" onClick={onHomeClick} className="text-lg font-bold">
         🏬 MyStore
       </Link>
 
@@ -32,7 +32,7 @@ function Navbar() {
       <div className="flex items-center gap-4">
         
         {/* Home link with hover underline effect */}
-        <Link to="/" className="hover:underline">
+        <Link to="/" onClick={onHomeClick} className="hover:underline">
           Home
         </Link>
 
