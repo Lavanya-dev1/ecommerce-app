@@ -6,7 +6,7 @@ import { useSearchParams } from "react-router-dom";
 // Import ProductCard component to display each product
 import ProductCard from "../components/ProductCard";
 
-function Home({ shouldReset }) {
+function Home() {
   // Store all fetched products
   const [products, setProducts] = useState([]);
 
@@ -24,12 +24,7 @@ const [filter, setFilter] = useState(searchParams.get("category") || "");
 const [search, setSearch] = useState(searchParams.get("search") || "");
 
 
-  useEffect(() => {
-    if (shouldReset) {
-      setFilter("");  // clears the selected category
-      setSearch("");  // clears the search box
-    }
-  }, [shouldReset]);
+ 
   // Fetch all products when the component first loads
   useEffect(() => {
     axios
