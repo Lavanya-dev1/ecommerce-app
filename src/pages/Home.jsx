@@ -3,133 +3,134 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
-// Import ProductCard component
+// Import ProductCard component to display each product
 import ProductCard from "../components/ProductCard";
 
-function Home() {
+function Home({ shouldReset }) {
   // Store all fetched products
   const [products, setProducts] = useState([]);
 
   // Store filtered/search results
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  // Store categories
+  // Store all available categories (like electronics, jewelry, etc.)
   const [categories, setCategories] = useState([]);
 
-  // URL parameters
-  const [searchParams, setSearchParams] = useSearchParams();
+ // Read parameters from the URL
+const [searchParams, setSearchParams] = useSearchParams();
 
-  // Initialize from URL
-  const [filter, setFilter] = useState(searchParams.get("category") || "");
-  const [search, setSearch] = useState(searchParams.get("search") || "");
+// Initial values come from the URL (if present)
+const [filter, setFilter] = useState(searchParams.get("category") || "");
+const [search, setSearch] = useState(searchParams.get("search") || "");
 
-  // ✅ STEP 1: Sync state when URL changes (for browser back/forward)
+
   useEffect(() => {
-    const newCategory = searchParams.get("category") || "";
-    const newSearch = searchParams.get("search") || "";
-
-    // only update if different — prevents infinite loop
-    if (newCategory !== filter) setFilter(newCategory);
-    if (newSearch !== search) setSearch(newSearch);
-  }, [searchParams]);
-
-  // ✅ STEP 2: Fetch all products
+    if (shouldReset) {
+      setFilter("");  // clears the selected category
+      setSearch("");  // clears the search box
+    }
+  }, [shouldReset]);
+  // Fetch all products when the component first loads
   useEffect(() => {
     axios
-      .get("https://fakestoreapi.com/products")
+      .get("https://fakestoreapi.com/products") // Fake Store API endpoint
       .then((response) => {
-        setProducts(response.data);
-        setFilteredProducts(response.data);
+        setProducts(response.data); // Save all products
+        setFilteredProducts(response.data); // Show all initially
       })
       .catch((error) => console.error("Error Fetching Products:", error));
   }, []);
 
-  // ✅ STEP 3: Fetch categories
+  // Fetch categories from API
   useEffect(() => {
     axios
-      .get("https://fakestoreapi.com/products/categories")
+      .get("https://fakestoreapi.com/products/categories") // Get categories list
       .then((response) => setCategories(response.data))
       .catch((error) => console.error("Error Fetching Categories:", error));
   }, []);
 
-  // ✅ STEP 4: Filter and search whenever products, search, or filter changes
+  
+
+  // Filter and search whenever products, search text, or category changes
   useEffect(() => {
     let filtered = products;
 
+    // Filter by category if selected
     if (filter) {
       filtered = filtered.filter((p) => p.category === filter);
     }
 
+    // Filter by search text (case-insensitive)
     if (search) {
       filtered = filtered.filter((p) =>
         p.title.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    setFilteredProducts(filtered);
+    setFilteredProducts(filtered); // Update the displayed list
   }, [products, search, filter]);
 
-  // ✅ STEP 5: Keep URL parameters in sync with state
-  useEffect(() => {
-    const params = {};
-    if (filter) params.category = filter;
-    if (search) params.search = search;
-    setSearchParams(params);
-  }, [filter, search, setSearchParams]);
+  // Keep URL parameters in sync with filter/search state
+useEffect(() => {
+  const params = {};
+  if (filter) params.category = filter;
+  if (search) params.search = search;
 
-  // ✅ UI rendering
+  setSearchParams(params); // updates the URL like ?category=jewelery&search=ring
+}, [filter, search]);
+
+
+  // Render UI
   return (
     <div className="p-6">
+      {/* Page heading */}
       <h1 className="text-2xl font-bold mb-4">Product Catalog</h1>
 
+      {/* Search and filter section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
         {/* Search box */}
         <input
           type="text"
           placeholder="Search products..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setFilter(""); // Clear category if typing search
-          }}
+          onChange={(e) => {setSearch(e.target.value);
+          setFilter("");}}
           className="border p-2 rounded w-full md:w-1/3"
         />
 
         {/* Category dropdown */}
         <select
           value={filter}
-          onChange={(e) => {
-            setFilter(e.target.value);
-            setSearch(""); // Clear search when changing category
-          }}
+          onChange={(e) => {setFilter(e.target.value); 
+         setSearch("");  }}
           className="border p-2 rounded w-full md:w-1/4"
         >
           <option value="">All Categories</option>
+          {/* Map each category option */}
           {categories.map((cat) => (
             <option key={cat} value={cat}>
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              {cat.charAt(0).toUpperCase() + cat.slice(1)} {/* capitalize */}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Product List */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        ) : search ? (
-          <p className="col-span-full text-center text-gray-500 text-lg">
-            🔍 No products found for "
-            <span className="font-semibold">{search}</span>"
-          </p>
-        ) : (
-          <p className="col-span-full text-center text-gray-500 text-lg">
-            ❌ No products found in this category.
-          </p>
-        )}
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+  {filteredProducts.length > 0 ? (
+    filteredProducts.map((product) => (
+      <ProductCard key={product.id} product={product} />
+    ))
+  ) : search ? (
+    <p className="col-span-full text-center text-gray-500 text-lg">
+      🔍 No products found for "<span className="font-semibold">{search}</span>"
+    </p>
+  ) : (
+    <p className="col-span-full text-center text-gray-500 text-lg">
+      ❌ No products found in this category.
+    </p>
+  )}
+</div>
+
     </div>
   );
 }
